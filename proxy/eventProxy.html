@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button id="btn">click</button>
+    <script>
+        function getElement(id) {
+            const dom = document.getElementById(id);
+            
+            return new Proxy(dom, {
+                get(target, key, receiver) {
+                    if(key.startsWith('wait')){
+                        const eventName = key.slice(4).toLowerCase();
+                        return new Promise((resolve, reject) => {
+                            dom.addEventListener(eventName, resolve, { once: true })
+                        })
+                    }
+                    return Reflect.get(target, key, receiver);
+                }
+            })
+        }
+        (async function(){
+            const button = getElement('btn');
+            while(true){
+                await button.waitclick;
+                console.log(`output->click`);
+            }
+        })();
+    </script>
+</body>
+</html>
