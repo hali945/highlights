@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>{{ c }}</h1>
+        <button @click="handle">Click Me</button>
+    </div>
+    <script>
+        function handle() {
+            console.log('handle: This is a method:', this.handle === handle);
+            this.c++;
+        }
+        new Vue({
+            el: '#app',
+            beforeCreate() {
+                this.c = 2; // This will not affect the data property 'c' defined later
+                console.log('beforeCreate: Instance is being created', this);
+            },
+            data() {
+                return {
+                    b:1,
+                    c: 3 // This will be the initial value of 'c'
+                };
+            },
+            created() {
+                console.info('data: Initializing data properties', this);
+                console.log('created: Instance has been created');
+            },
+            methods: {
+                handle
+            },
+        });
+    </script>
+</body>
+</html>
