@@ -1,0 +1,76 @@
+<!--
+ * @Author: hali 13656691830@163.com
+ * @Date: 2025-07-12 23:37:57
+ * @LastEditors: hali 13656691830@163.com
+ * @LastEditTime: 2025-07-13 10:19:19
+ * @FilePath: \highlights\multiSelect\dropdown.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dropdown</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-toggle {
+            cursor: pointer;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="dropdown">
+            <div class="dropdown-toggle" ref="dropdownToggle" @click.stop="toggleDropdown">
+                <span>Dropdown</span>
+            </div>
+            <div class="dropdown-menu" ref="dropdownMenu" v-show="isOpen" @click.stop>
+                <div class="dropdown-item">Item 1</div>
+                <div class="dropdown-item">Item 2</div>
+                <div class="dropdown-item">Item 3</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    isOpen: false
+                }
+            },
+            created() {
+                document.addEventListener('click', this.closeDropdown);
+            },
+            beforeDestroy() {
+                document.removeEventListener('click', this.closeDropdown);
+            },
+            methods: {
+                toggleDropdown() {
+                    this.isOpen = !this.isOpen;
+                    console.log(`output->toggleDropdown`,this.isOpen)
+                },
+                closeDropdown() {
+                    this.isOpen = false;
+                    console.log(`output->closeDropdown`,this.isOpen)
+                },
+                onDropdownMenuClick(e) {
+                    e.stopPropagation();
+                }
+            }
+        })
+    </script>
+</body>
+</html>

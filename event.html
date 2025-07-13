@@ -1,0 +1,82 @@
+<!--
+ * @Author: hali 13656691830@163.com
+ * @Date: 2025-07-13 10:45:39
+ * @LastEditors: hali 13656691830@163.com
+ * @LastEditTime: 2025-07-13 11:56:46
+ * @FilePath: \highlights\event.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件默认行为</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <button @click="handleClick">点击</button>
+        <input type="text" @keydown="handleKeyDown">
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            methods: {
+                handleClick(e) {
+                    e.preventDefault();
+                    console.log('点击事件被阻止了');
+                },
+                handleKeyDown(e) {
+                    const str = '1234567890';
+                    if (!str.includes(e.key)) {
+                        e.preventDefault();
+                        console.log('keydown事件被阻止了');
+                    }
+                }002095
+            },
+            created() {
+                // document.addEventListener('click', function(e) {
+                //     console.log('事件路径:', e.composedPath());
+                //     console.log('当前目标:', e.target);
+                //     console.log('当前阶段:', e.eventPhase); // 1:捕获 2:目标 3:冒泡
+                // });
+                // 默认行为：允许页面关闭/刷新
+                window.addEventListener('beforeunload', (e) => {
+                    e.preventDefault(); // 阻止页面关闭
+                    // e.returnValue = '确定要离开吗？'; // 显示确认对话框
+                });
+                // document.addEventListener('contextmenu', this.handleClick);
+                document.addEventListener('keydown', (e) => {
+                // Ctrl+S 保存
+                // if (e.ctrlKey && e.key === 's') {
+                //     e.preventDefault();
+                // }
+                
+                // Ctrl+Z 撤销
+                // if (e.ctrlKey && e.key === 'z') {
+                //     e.preventDefault();
+                // }
+                
+                // F5 刷新
+                // if (e.key === 'F5') {
+                //     e.preventDefault();
+                // }
+                });
+            },
+            beforeDestroy() {
+                // document.removeEventListener('contextmenu', this.handleClick);
+                document.removeEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 's') {
+                        e.preventDefault();
+                    }
+                    if (e.ctrlKey && e.key === 'z') {
+                        e.preventDefault();
+                    }
+                });
+            }
+        })
+    </script>
+</body>
+</html>
