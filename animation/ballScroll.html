@@ -2,7 +2,7 @@
  * @Author: hali 13656691830@163.com
  * @Date: 2025-07-26 08:14:29
  * @LastEditors: hali 13656691830@163.com
- * @LastEditTime: 2025-07-26 09:21:46
+ * @LastEditTime: 2025-07-26 14:16:36
  * @FilePath: \highlights\animation\ballScroll.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -33,6 +33,45 @@
     <div id="ball"></div>
 
     <script>
+
+        // // 拖拽动画
+        // let startX, startY;
+        // let animation;
+        
+        // const element = document.querySelector("#ball");
+        // element.addEventListener('mousedown', (e) => {
+        //     startX = e.clientX;
+        //     startY = e.clientY;
+            
+        //     // 取消之前的动画
+        //     if (animation) animation.cancel();
+        // });
+
+        // element.addEventListener('mousemove', (e) => {
+        //     console.log(`output->startX`,startX)
+        // if (startX !== undefined) {
+        //     const deltaX = e.clientX - 25;
+        //     const deltaY = e.clientY - 25;
+            
+        //     const { left, top, width, height } = element.getBoundingClientRect();
+
+        //     const ballX = left;
+        //     const ballY = top;
+            
+        //     animation = element.animate([
+        //     { transform: `translate(${ballX}px, ${ballY}px)` },
+        //     { transform: `translate(${deltaX}px, ${deltaY}px)` }
+        //     ], {
+        //     duration: 0,
+        //     fill: 'forwards'
+        //     });
+
+        //     window.addEventListener("mouseup", () => {
+        //         animation.pause();
+        //     })
+        // }
+        // });
+
         window.addEventListener("click", e => {
             const clientX = e.clientX;
             const clientY = e.clientY;
