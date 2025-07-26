@@ -1,0 +1,80 @@
+<!--
+ * @Author: hali 13656691830@163.com
+ * @Date: 2025-07-26 08:14:29
+ * @LastEditors: hali 13656691830@163.com
+ * @LastEditTime: 2025-07-26 09:21:46
+ * @FilePath: \highlights\animation\ballScroll.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Scroll</title>
+
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        #ball {
+            width: 50px;
+            height: 50px;
+            background-color: lightblue;
+            border-radius: 50%;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="ball"></div>
+
+    <script>
+        window.addEventListener("click", e => {
+            const clientX = e.clientX;
+            const clientY = e.clientY;
+
+            move(clientX,clientY);
+        });
+
+        function move(x,y) {
+            const ball = document.querySelector("#ball");
+            const { left, top, width, height } = ball.getBoundingClientRect();
+
+            const ballX = left;
+            const ballY = top;
+
+            ball.getAnimations().forEach(v => {
+                v.cancel();
+            })
+            const rad = Math.atan2(y-ballY, x- ballX);
+            const deg = (rad * 180) / Math.PI;
+            
+            ball.animate([
+                {
+                    transform: `translate(${ballX}px, ${ballY}px)`,
+                },
+                {
+                    transform: `translate(${ballX}px, ${ballY}px) scaleX(1.5)`,
+                    offset: 0.4
+                },
+                {
+                    transform: `translate(${x - width/2}px, ${y- height/2}px) scaleX(1.5)`,
+                    offset: 0.8
+                },
+                {
+                    transform: `translate(${x - width/2}px, ${y- height/2}px) scaleX(1)`,
+                }
+            ],
+            {
+                fill: "forwards",
+                duration: 1000
+            })
+        }
+
+    </script>
+</body>
+</html>

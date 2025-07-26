@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>设备告警管理</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <style>
+    body {
+      background: #f5f6fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1600px;
+      margin: 24px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 18px 24px 24px 24px;
+    }
+    .search-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      align-items: flex-end;
+      margin-bottom: 12px;
+    }
+    .search-item {
+      display: flex;
+      flex-direction: column;
+      min-width: 180px;
+      flex: 1 1 220px;
+    }
+    .search-item label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .search-item input,
+    .search-item select {
+      padding: 6px 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 15px;
+      background: #fff;
+    }
+    .search-actions {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+    }
+    .btn {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 7px 22px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn.reset {
+      background: #e67e22;
+    }
+    .btn.toggle {
+      background: #95a5a6;
+    }
+    .search-more {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      margin-top: 8px;
+      border-top: 1px dashed #e0e0e0;
+      padding-top: 12px;
+      animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .card-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      align-items: flex-start;
+      position: relative;
+    }
+    .card-img {
+      width: 140px;
+      height: 90px;
+      background: #eee;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card-title {
+      font-weight: bold;
+      color: #222;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .tag {
+      background: #e3f2fd;
+      color: #1976d2;
+      border-radius: 3px;
+      padding: 2px 8px;
+      font-size: 12px;
+    }
+    .card-meta {
+      color: #888;
+      font-size: 13px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .card-footer {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #b71c1c;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pagination {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 18px;
+      align-items: center;
+    }
+    .pagination button {
+      border: none;
+      background: #f0f0f0;
+      color: #333;
+      border-radius: 3px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .pagination button.active {
+      background: #3498db;
+      color: #fff;
+    }
+    @media (max-width: 1100px) {
+      .container { padding: 8px; }
+      .card-list { grid-template-columns: 1fr; }
+      .search-bar, .search-more { gap: 10px 6px; }
+    }
+    @media (max-width: 700px) {
+      .search-bar, .search-more { flex-direction: column; }
+      .search-actions { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <!-- 搜索栏 -->
+      <form class="search-bar" @submit.prevent="onSearch">
+        <div class="search-item">
+          <label>设备能力</label>
+          <select v-model="form.ability">
+            <option value="">全部</option>
+            <option value="1">能力1</option>
+            <option value="2">能力2</option>
+          </select>
+        </div>
+        <div class="search-item">
+          <label>设备状态</label>
+          <select v-model="form.status">
+            <option value="">全部</option>
+            <option value="1">30天内离线</option>
+            <option value="2">60天内离线</option>
+            <option value="3">60天以上离线</option>
+          </select>
+        </div>
+        <div class="search-item">
+          <label>标签筛选</label>
+          <input v-model="form.tag" placeholder="请输入标签">
+        </div>
+        <div class="search-item">
+          <label>关键字</label>
+          <input v-model="form.keyword" placeholder="请输入关键字">
+        </div>
+        <div class="search-actions">
+          <button class="btn" type="submit">查询</button>
+          <button class="btn reset" type="button" @click="onReset">重置</button>
+          <button class="btn toggle" type="button" @click="showMore = !showMore">{{ showMore ? '收起' : '更多' }}</button>
+        </div>
+        <!-- 更多筛选项 -->
+        <div class="search-more" v-if="showMore">
+          <div class="search-item">
+            <label>时间范围</label>
+            <input type="date" v-model="form.dateStart"> ~
+            <input type="date" v-model="form.dateEnd">
+          </div>
+          <div class="search-item">
+            <label>告警类型</label>
+            <select v-model="form.alarmType">
+              <option value="">全部</option>
+              <option value="1">类型A</option>
+              <option value="2">类型B</option>
+            </select>
+          </div>
+          <div class="search-item">
+            <label>自定义项</label>
+            <input v-model="form.custom" placeholder="自定义筛选">
+          </div>
+        </div>
+      </form>
+      <!-- 列表 -->
+      <div class="card-list">
+        <div class="card" v-for="item in pagedList" :key="item.id">
+          <img class="card-img" :src="item.img" alt="图片">
+          <div class="card-content">
+            <div class="card-title">{{ item.title }}</div>
+            <div class="card-tags">
+              <span class="tag" v-for="tag in item.tags" :key="tag">{{ tag }}</span>
+            </div>
+            <div class="card-meta">
+              <span>告警时间：{{ item.time }}</span>
+              <span>位置：{{ item.location }}</span>
+            </div>
+            <div class="card-footer">
+              <span v-if="item.warning" style="color:#e74c3c;">&#9888; {{ item.warning }}</span>
+              <span>记录ID: {{ item.id }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 分页 -->
+      <div class="pagination">
+        <button :disabled="page===1" @click="page=1">&lt;&lt;</button>
+        <button :disabled="page===1" @click="page--">&lt;</button>
+        <button v-for="p in totalPages" :key="p" :class="{active: p===page}" @click="page=p">{{p}}</button>
+        <button :disabled="page===totalPages" @click="page++">&gt;</button>
+        <button :disabled="page===totalPages" @click="page=totalPages">&gt;&gt;</button>
+        <span>共{{ total }}条</span>
+      </div>
+    </div>
+  </div>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        showMore: false,
+        page: 1,
+        pageSize: 4,
+        form: {
+          ability: '',
+          status: '',
+          tag: '',
+          keyword: '',
+          dateStart: '',
+          dateEnd: '',
+          alarmType: '',
+          custom: ''
+        },
+        list: Array.from({length: 12}).map((_,i)=>({
+          id: 1000+i,
+          img: 'https://picsum.photos/seed/' + (1000+i) + '/140/90',
+          title: '厦门区湖里街道建设路124号视频-' + (1000+i),
+          tags: ['车辆告警', '无人值守', '视频丢失'],
+          time: '2025-06-06 13:14:26',
+          location: '厦门市湖里区建设路124号',
+          warning: i%3===0 ? '异常告警' : ''
+        }))
+      },
+      computed: {
+        total() {
+          return this.list.length;
+        },
+        totalPages() {
+          return Math.ceil(this.total / this.pageSize);
+        },
+        pagedList() {
+          const start = (this.page-1)*this.pageSize;
+          return this.list.slice(start, start+this.pageSize);
+        }
+      },
+      methods: {
+        onSearch() {
+          // 这里可以根据form内容过滤list
+          this.page = 1;
+          alert('模拟查询，实际应根据form内容过滤list');
+        },
+        onReset() {
+          this.form = {
+            ability: '',
+            status: '',
+            tag: '',
+            keyword: '',
+            dateStart: '',
+            dateEnd: '',
+            alarmType: '',
+            custom: ''
+          };
+        }
+      }
+    })
+  </script>
+</body>
+</html>

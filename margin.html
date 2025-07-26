@@ -1,0 +1,40 @@
+<!--
+ * @Author: hali 13656691830@163.com
+ * @Date: 2025-07-21 14:59:17
+ * @LastEditors: hali 13656691830@163.com
+ * @LastEditTime: 2025-07-21 15:00:10
+ * @FilePath: \highlights\margin.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>margin</title>
+    <style>
+        .box {
+            width: 500px;
+            height: 200px;
+            background-color: red;
+            position: relative;
+        }
+        .box-inner {
+            width: 100px;
+            height: 100px;
+            background-color: blue;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="box-inner"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!--
+ * @Author: hali 13656691830@163.com
+ * @Date: 2025-07-16 22:03:09
+ * @LastEditors: hali 13656691830@163.com
+ * @LastEditTime: 2025-07-16 22:33:10
+ * @FilePath: \highlights\selected.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>selected</title>
+    <style>
+        .h-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .h-btn {
+            min-width: 80px;
+            padding: 8px 18px;
+            border: 1.5px solid #d0d0d0;
+            border-radius: 22px;
+            background: #fff;
+            color: #333;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.18s;
+            outline: none;
+            position: relative;
+        }
+        /* 奇数选中 */
+        .h-btn.selected.odd {
+            background: #e67e22;
+            color: #fff;
+            border-color: #e67e22;
+            box-shadow: 0 2px 8px rgba(230,126,34,0.10);
+        }
+        /* 偶数选中 */
+        .h-btn.selected.even {
+            background: #3498db;
+            color: #fff;
+            border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+        }
+        /* 奇数序号悬浮 */
+        .h-btn.odd:hover:not(.selected) {
+            background: #fbeee6;
+            color: #e67e22;
+            border-color: #e67e22;
+        }
+        /* 偶数序号悬浮 */
+        .h-btn.even:hover:not(.selected) {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="h-list">
+            <button
+                v-for="(item, idx) in items"
+                :key="item.id"
+                class="h-btn"
+                :class="[item.selected ? 'selected' : '', (idx+1)%2===1 ? 'odd' : 'even']"
+                @click="item.selected = !item.selected"
+            >
+                {{ item.label }}
+            </button>
+        </div>
+        <div>当前选中：{{ items.filter(item => item.selected).map(item => item.label).join(', ') }}</div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                items: [
+                    { id: 1, label: '苹果', selected: false },
+                    { id: 2, label: '香蕉', selected: false },
+                    { id: 3, label: '橙子', selected: false },
+                    { id: 4, label: '葡萄', selected: false },
+                    { id: 5, label: '西瓜', selected: false },
+                    { id: 6, label: '哈密瓜', selected: false },
+                    { id: 7, label: '柠檬', selected: false },
+                    { id: 8, label: '蓝莓', selected: false }
+                ],
+                selectedIdx: null
+            }
+        })
+    </script>
+</body>
+</html>
