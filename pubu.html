@@ -169,6 +169,7 @@
                 this.items = [];
                 this.currentPage = 0;
                 this.isLoading = false;
+                this.imageObserver = null;
                 
                 this.init();
             }
@@ -177,23 +178,27 @@
                 this.loadMoreBtn.addEventListener('click', () => this.loadMore());
                 // this.loadMore(); // 初始加载
                 // 使用 Intersection Observer API
-                const imageObserver = new IntersectionObserver((entries, observer) => {
-                    entries.forEach(entry => {
+                this.imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(async entry => {
                         if (entry.isIntersecting) {
-                            this.loadMore();
+                            if (entry.target.dataset.src) {
+                                const img = entry.target;
+                                img.src = img.dataset.src;
+                                img.classList.remove('lazy');
+                                observer.unobserve(img);
+                            } else {
+                                this.loadMore();
+                            }
                         }
                     });
                 });
-
-                    // document.querySelectorAll('img[data-src]').forEach(img => {
-                    //     imageObserver.observe(img);
-                    // });
-
-                    imageObserver.observe(this.loadMoreBtn);
+                
+        
+                this.imageObserver.observe(this.loadMoreBtn);
             }
 
             // 生成模拟数据
-            generateItems(count = 20) {
+            generateItems(count = 100) {
                 const items = [];
                 const titles = [
                     '美丽的风景', '城市夜景', '自然风光', '建筑艺术',
@@ -237,7 +242,7 @@
                 const div = document.createElement('div');
                 div.className = 'waterfall-item';
                 div.innerHTML = `
-                    <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
+                    <img alt="${item.title}" data-src="${item.imageUrl}" loading="lazy">
                     <div class="content">
                         <h3>${item.title}</h3>
                         <p>${item.description}</p>
@@ -257,7 +262,7 @@
                 // 模拟网络延迟
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
-                const newItems = this.generateItems(20);
+                const newItems = this.generateItems();
                 this.items = [...this.items, ...newItems];
 
                 // 添加新项目到DOM
@@ -275,6 +280,12 @@
                 if (this.currentPage >= 5) {
                     this.loadMoreBtn.style.display = 'none';
                 }
+                
+                            
+                document.querySelectorAll('img').forEach(img => {
+                    this.imageObserver.observe(img);
+                });
+
             }
 
             // 重新计算布局（响应式）
