@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>瀑布流布局</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .waterfall {
+            column-count: 4;
+            column-gap: 20px;
+            padding: 20px 0;
+        }
+
+        .waterfall-item {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .waterfall-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .waterfall-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .waterfall-item .content {
+            padding: 15px;
+        }
+
+        .waterfall-item h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .waterfall-item p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .load-more {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .load-more-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .load-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .load-more-btn:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .waterfall {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .waterfall {
+                column-count: 2;
+                column-gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .waterfall {
+                column-count: 1;
+                column-gap: 10px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="waterfall" id="waterfall">
+            <!-- 瀑布流内容将通过JavaScript动态生成 -->
+        </div>
+        
+        <div class="load-more">
+            <button class="load-more-btn" id="loadMore">加载更多</button>
+        </div>
+    </div>
+
+    <script>
+        class WaterfallLayout {
+            constructor() {
+                this.container = document.getElementById('waterfall');
+                this.loadMoreBtn = document.getElementById('loadMore');
+                this.items = [];
+                this.currentPage = 0;
+                this.isLoading = false;
+                
+                this.init();
+            }
+
+            init() {
+                this.loadMoreBtn.addEventListener('click', () => this.loadMore());
+                // this.loadMore(); // 初始加载
+                // 使用 Intersection Observer API
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            this.loadMore();
+                        }
+                    });
+                });
+
+                    // document.querySelectorAll('img[data-src]').forEach(img => {
+                    //     imageObserver.observe(img);
+                    // });
+
+                    imageObserver.observe(this.loadMoreBtn);
+            }
+
+            // 生成模拟数据
+            generateItems(count = 20) {
+                const items = [];
+                const titles = [
+                    '美丽的风景', '城市夜景', '自然风光', '建筑艺术',
+                    '人物肖像', '动物世界', '美食佳肴', '旅行记忆',
+                    '工作生活', '学习成长', '友情岁月', '家庭时光'
+                ];
+                
+                const descriptions = [
+                    '这是一张令人心旷神怡的图片，展现了自然的美好。',
+                    '城市在夜晚展现出不同的魅力，灯火辉煌。',
+                    '大自然的鬼斧神工，让人叹为观止。',
+                    '建筑是人类智慧的结晶，艺术与实用的完美结合。',
+                    '每个人都有自己的故事，每个表情都值得记录。',
+                    '动物世界充满了奇妙，它们也有自己的情感。',
+                    '美食不仅能满足味蕾，更能温暖心灵。',
+                    '旅行让我们看到更大的世界，遇见更好的自己。',
+                    '工作中的专注，生活中的美好，都值得被记录。',
+                    '学习是一辈子的事，成长是永恒的课题。',
+                    '朋友是人生路上最美的风景，友情是最珍贵的财富。',
+                    '家庭是温暖的港湾，是永远的依靠。'
+                ];
+
+                for (let i = 0; i < count; i++) {
+                    const randomHeight = Math.floor(Math.random() * 200) + 150; // 150-350px
+                    const randomIndex = Math.floor(Math.random() * titles.length);
+                    
+                    items.push({
+                        id: Date.now() + i,
+                        title: titles[randomIndex],
+                        description: descriptions[randomIndex],
+                        imageUrl: `https://picsum.photos/300/${randomHeight}`,
+                        height: randomHeight
+                    });
+                }
+                
+                return items;
+            }
+
+            // 创建瀑布流项目
+            createWaterfallItem(item) {
+                const div = document.createElement('div');
+                div.className = 'waterfall-item';
+                div.innerHTML = `
+                    <img src="${item.imageUrl}" alt="${item.title}" loading="lazy">
+                    <div class="content">
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                    </div>
+                `;
+                return div;
+            }
+
+            // 加载更多内容
+            async loadMore() {
+                if (this.isLoading) return;
+                
+                this.isLoading = true;
+                this.loadMoreBtn.textContent = '加载中...';
+                this.loadMoreBtn.disabled = true;
+
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const newItems = this.generateItems(20);
+                this.items = [...this.items, ...newItems];
+
+                // 添加新项目到DOM
+                newItems.forEach(item => {
+                    const element = this.createWaterfallItem(item);
+                    this.container.appendChild(element);
+                });
+
+                this.currentPage++;
+                this.isLoading = false;
+                this.loadMoreBtn.textContent = '加载更多';
+                this.loadMoreBtn.disabled = false;
+
+                // 如果加载了很多内容，隐藏加载按钮
+                if (this.currentPage >= 5) {
+                    this.loadMoreBtn.style.display = 'none';
+                }
+            }
+
+            // 重新计算布局（响应式）
+            recalculateLayout() {
+                // 瀑布流会自动重新排列，这里可以添加额外的逻辑
+                console.log('布局重新计算');
+            }
+        }
+
+        // 初始化瀑布流
+        const waterfall = new WaterfallLayout();
+
+        // 监听窗口大小变化，重新计算布局
+        window.addEventListener('resize', () => {
+            setTimeout(() => waterfall.recalculateLayout(), 100);
+        });
+    </script>
+</body>
+</html>

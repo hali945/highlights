@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Scroll Directive</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        .container {
+            width: 300px;
+            height: 200px;
+            border: 2px solid #ccc;
+            margin: 20px;
+            padding: 10px;
+            overflow: auto;
+        }
+        
+        .no-scroll {
+            overflow: hidden;
+        }
+        
+        .content {
+            width: 400px;
+            height: 300px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+        
+        .scroll-info {
+            margin: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h2>Vue Scroll Directive Demo</h2>
+        
+        <div class="scroll-info">
+            <h3>Scroll Detection Results:</h3>
+            <p>Container 1 has scrollbars: {{ hasScroll1 ? 'Yes' : 'No' }}</p>
+            <p>Container 2 has scrollbars: {{ hasScroll2 ? 'Yes' : 'No' }}</p>
+        </div>
+        
+        <div class="container" v-scroll="onScroll1">
+            <div class="content">
+                This content is larger than the container, so scrollbars should appear.
+            </div>
+        </div>
+        
+        <div class="container no-scroll" v-scroll="onScroll2">
+            <div class="content" style="width: 200px; height: 100px;">
+                This content fits within the container, so no scrollbars.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                hasScroll1: false,
+                hasScroll2: false,
+                minWidth: 1500 // 最小宽度限制
+            },
+            directives: {
+                scroll: {
+                    bind(el, binding) {
+                        // Function to check if element has scrollbars
+                        function checkScrollbars() {
+                            const hasVerticalScroll = el.scrollHeight > el.clientHeight;
+                            const hasHorizontalScroll = el.scrollWidth > el.clientWidth;
+                            
+                            const hasScrollbars = hasVerticalScroll || hasHorizontalScroll;
+                            
+                            // Call the callback function if provided
+                            if (binding.value && typeof binding.value === 'function') {
+                                binding.value(hasScrollbars, {
+                                    vertical: hasVerticalScroll,
+                                    horizontal: hasHorizontalScroll,
+                                    scrollHeight: el.scrollHeight,
+                                    scrollWidth: el.scrollWidth,
+                                    clientHeight: el.clientHeight,
+                                    clientWidth: el.clientWidth
+                                });
+                            }
+                            
+                            return hasScrollbars;
+                        }
+                        
+                        // Store the check function on the element for external access
+                        el._checkScrollbars = checkScrollbars;
+                        
+                        // Initial check
+                        checkScrollbars();
+                        
+                        // Set up ResizeObserver to watch for size changes
+                        if (window.ResizeObserver) {
+                            const observer = new ResizeObserver(() => {
+                                checkScrollbars();
+                            });
+                            observer.observe(el);
+                            el._resizeObserver = observer;
+                        }
+                    },
+                    unbind(el) {
+                        // Clean up ResizeObserver
+                        if (el._resizeObserver) {
+                            el._resizeObserver.disconnect();
+                        }
+                    }
+                }
+            },
+            methods: {
+                onScroll1(hasScroll, details) {
+                    this.hasScroll1 = hasScroll;
+                    console.log('Container 1 scroll details:', details);
+                },
+                onScroll2(hasScroll, details) {
+                    this.hasScroll2 = hasScroll;
+                    console.log('Container 2 scroll details:', details);
+                },
+                // 设置页面最小宽度
+                setMinWidth() {
+                    const style = document.createElement('style');
+                    style.id = 'min-width-style';
+                    style.textContent = `
+                        html, body {
+                            min-width: ${this.minWidth}px !important;
+                            overflow-x: auto !important;
+                        }
+                        #app {
+                            min-width: ${this.minWidth}px !important;
+                        }
+                        .container {
+                            min-width: ${this.minWidth - 100}px !important;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    console.log('设置最小宽度:', this.minWidth + 'px');
+                },
+                // 监听窗口大小变化
+                handleResize() {
+                    console.log('当前窗口宽度:', window.innerWidth, '最小宽度:', this.minWidth);
+                    if (window.innerWidth < this.minWidth) {
+                        console.log('窗口宽度小于最小宽度，尝试调整...');
+                        try {
+                            // 尝试多种方法强制调整窗口大小
+                            if (window.resizeTo) {
+                                window.resizeTo(this.minWidth, window.innerHeight);
+                            }
+                            // 如果resizeTo被阻止，使用CSS强制
+                            document.body.style.minWidth = this.minWidth + 'px';
+                            document.documentElement.style.minWidth = this.minWidth + 'px';
+                        } catch (e) {
+                            console.log('调整窗口大小失败:', e);
+                        }
+                    }
+                }
+            },
+            mounted() {
+                // 设置最小宽度限制
+                this.setMinWidth();
+                
+                // 监听窗口大小变化
+                window.addEventListener('resize', this.handleResize);
+                
+                // 初始检查
+                this.handleResize();
+                
+                // 定时检查窗口大小（防止某些情况下resize事件不触发）
+                this.resizeTimer = setInterval(() => {
+                    this.handleResize();
+                }, 1000);
+            },
+            beforeDestroy() {
+                // 清理事件监听器
+                window.removeEventListener('resize', this.handleResize);
+                
+                // 清理定时器
+                if (this.resizeTimer) {
+                    clearInterval(this.resizeTimer);
+                }
+                
+                // 移除添加的样式
+                const style = document.getElementById('min-width-style');
+                if (style) {
+                    style.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
